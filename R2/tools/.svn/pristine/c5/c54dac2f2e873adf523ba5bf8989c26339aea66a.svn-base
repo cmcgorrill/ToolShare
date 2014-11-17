@@ -1,0 +1,107 @@
+{% extends "mybase.html" %}
+
+
+{% block title %}Register{% endblock %}
+
+{% block pagename %}Register{% endblock %}
+
+{% block content %}
+
+<form method="post">
+
+	<div id="content" align="center">
+		{% csrf_token %}
+		   {% if form.errors %}<p>Please correct the following fields:</p>{% endif %}
+	
+	<table>
+		<tr>
+			<td>
+				<div class="register_div">
+				{% if form.username.errors %}<p class="error">{{ form.username.errors }}</p>{% endif %}
+				<p><label for="username"{% if form.username.errors %} class="error"{% endif %}>*Username: 
+			</td>
+			<td>
+				{{ form.username }}</label></p></div>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<div class="register_div">
+				{% if form.email.errors %}<p class="error">{{ form.email.errors }}</p>{% endif %}
+				<p><label for="email"{% if form.email.errors %} class="error"{% endif %}>*Email: 
+			</td>
+			<td>
+				{{ form.email }}</label></p></div>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<div class="register_div">
+				{% if form.password.errors %}<p class="error">{{ form.password.errors }}</p>{% endif %}
+				<p><label for="password"{% if form.password.errors %} class="error"{% endif %}>*Password: 
+			</td>
+			<td>
+				{{ form.password }}</label></p></div>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<div class="register_div">
+				{% if form.passwordverify.errors %}<p class="error">{{ form.passwordverify.errors }}</p>{% endif %}
+				<p><label for="passwordverify"{% if form.paswordverify.errors %} class="error"{% endif %}>*Verify Password: 
+			</td>
+			<td>
+				{{ form.passwordverify }}</label></p></div>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<div class="register_div">
+				{% if form.name.errors %}<p class="error">{{ form.name.errors }}</p>{% endif %}
+				<p><label for="name"{% if form.name.errors %} class="error"{% endif %}>*Full Name: 
+			</td>
+			<td>
+				{{ form.name }}</label></p></div>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<div class="register_div">
+				{% if form.address.errors %}<p class="error">{{ form.address.errors }}</p>{% endif %}
+				<p><label for="address"{% if form.address.errors %} class="error"{% endif %}>*Address: 
+			</td>
+			<td>
+				{{ form.address }}</label></p></div>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<div class="register_div">
+				{% if form.zipCode.errors %}<p class="error">{{ form.zipCode.errors }}</p>{% endif %}
+				<p><label for="zipCode"{% if form.zipCode.errors %} class="error"{% endif %}>*Zipcode: 
+			</td>
+			<td>
+				{{ form.zipCode }}</label></p></div>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<div class="register_div">
+				{% if form.pickup.errors %}<p class="error">{{ form.pickup.errors }}</p>{% endif %}
+				<p><label for="pickup"{% if form.pickup.errors %} class="error"{% endif %}>Optional Pickup Arrangements: 
+			</td>
+			<td>
+				{{ form.pickup }}</label></p></div>
+			</td>
+		</tr>
+	</table>
+
+	<button class="btn btn-primary btn-lg" type="submit" alt="register">Submit</button>
+
+	</div>
+
+</form>
+{% endblock %}
+
+
+	

@@ -1,0 +1,23 @@
+{% extends "mybase.html" %}
+
+
+{% block title %}Edit Account{% endblock %}
+
+{% block pagename %}Edit Account{% endblock %}
+
+{% block content %}
+<div id='content'>
+
+    <p>{{user}}</p>
+	  
+	<p>{{address}}</p>
+	{{name}}
+	<form action="post">
+		Name: <input type="text" name="FirstName" ><br>
+		<input type="submit" value="Submit">
+	</form>
+<div>
+
+
+
+{% endblock %}

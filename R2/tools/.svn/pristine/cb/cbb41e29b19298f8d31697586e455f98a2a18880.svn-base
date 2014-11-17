@@ -1,0 +1,11 @@
+{% extends "mybase.html" %}
+
+{% block title %}Notification{% endblock %}
+
+{% block content %} 
+
+
+	<div id = "success" font-size = "32pt">	
+		{{message}}
+	</div>
+{% endblock %}

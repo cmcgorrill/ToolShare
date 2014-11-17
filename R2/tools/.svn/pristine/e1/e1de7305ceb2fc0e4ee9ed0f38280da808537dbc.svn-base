@@ -1,0 +1,44 @@
+{% extends "mybase.html" %}
+
+
+{% block title %}Login{% endblock %}
+
+{% block pagename %}Login{% endblock %}
+
+{% block content %}
+
+<form action="" method="post">
+
+	{% csrf_token %}
+	{% if form.errors %}
+	<p>Please correct the following fields:</p>
+	{{form.errors}}
+	{% endif %}
+	
+	<div id="content" align="center" style="margin-top:15%">
+		<div class="register_div">
+			{% if form.username.errors %}<p id="error">{{ form.username.errors }}</p>{% endif %}
+			<p><label for="username"{% if form.username.errors %} class="error"{% endif %}>Username: {{ form.username }}</label></p>
+			
+		</div>
+
+		<div class="register_div">
+			{% if form.password.errors %}<p id="error">{{ form.password.errors }}</p>{% endif %}
+			<p><label for="password"{% if form.password.errors %} class="error"{% endif %}>Password: {{ form.password }}</label></p>
+			
+		</div>
+
+
+		<p><button class="btn btn-primary btn-lg" type="submit" alt="register">Submit</button></p>
+
+		Haven't created an account yet? <a class="btn btn-primary btn-lg" href="/register/">Register</a>
+
+	</div>
+</form>
+
+
+	
+	
+
+</form>
+{% endblock %}

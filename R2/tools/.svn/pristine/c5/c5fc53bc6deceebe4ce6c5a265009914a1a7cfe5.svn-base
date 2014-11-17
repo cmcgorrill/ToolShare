@@ -1,0 +1,47 @@
+{% extends "mybase.html" %}
+
+{% block nav %}
+    <li><a href="/">Home</a></li>
+    <li><a href="/users/">Users</a></li>
+    <li><a href="/tools/">Tools</a></li>
+    <li><a href="/sheds/">Sheds</a></li>
+    {% if user.is_authenticated %}
+    <li class="active"><a href="/messages/">Messages</a></li>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+
+<form action="" method="post">
+	
+	<div id="content" align="center">
+		{% csrf_token %}
+	{% if form.errors %}<p>Please correct the following fields:</p>{% endif %}
+	
+	<div class="register_div">
+		{% if form.reciever.errors %}<p class="error">{{ form.reciever.errors }}</p>{% endif %}
+		<p><label for="reciever"{% if form.reciever.errors %} class="error"{% endif %}>To: {{ form.reciever }}</label></p>
+		
+	</div>
+
+	<div class="register_div">
+		{% if form.subject.errors %}<p class="error">{{ form.subject.errors }}</p>{% endif %}
+		<p><label for="subject"{% if form.subject.errors %} class="error"{% endif %}>Subject: {{ form.subject }}</label></p>
+		
+	</div>
+
+	<div class="register_div">
+		{% if form.message.errors %}<p class="error">{{ form.message.errors }}</p>{% endif %}
+		<p><label for="message"{% if form.message.errors %} class="error"{% endif %}>Message: {{ form.message }}</label></p>
+		
+	</div>
+
+	<div style="padding-top:30px">
+	<p><button class="btn btn-primary btn-lg" type="submit" alt="register">Submit</button></p>
+	</div>
+
+	</div>
+	
+</form>
+
+{% endblock %}

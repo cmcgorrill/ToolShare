@@ -1,0 +1,253 @@
+
+{% extends "mybase.html" %}
+
+{% block title %}{{targetUser}}'s Profile{% endblock %}
+
+{% block pagename %}{{targetUser}}'s Profile{% endblock %}
+
+{% block nav %}
+    <li><a href="/">Home</a></li>
+    <li class="active"><a href="/users/">Users</a></li>
+    <li><a href="/tools/">Tools</a></li>
+    <li><a href="/sheds/">Sheds</a></li>
+    {% if user.is_authenticated %}
+    <li><a href="/messages/">Messages</a></li>
+    {% endif %}
+{% endblock %}
+
+{% block content %}	
+
+<style>
+#right{
+	float: right;
+}
+#left{
+	float: left;
+}
+#profileTable{
+	width:100%;
+	height:100%;
+}
+#about{
+	margin-left:10%;
+}
+#own{
+	margin-left: 15%;
+}
+#borrow{
+	margin-left: 10%;
+}
+#requests{
+	height: 95%;
+	min-height: 100%
+}
+#ownedCol{
+	width:17%;
+	min-height: 100%;
+}
+#borrowedCol{
+	width:19%;
+	min-height: 100%
+}
+#lendingCol{
+	width:28%;
+	min-height: 100%
+}
+#welcome{
+	width:97%;
+	padding: 1%;
+	top:0;
+}
+#info{
+	top:0;
+}
+#owned{
+	width:79%;
+	min-height: 100%
+}
+#borrowed{
+	width:81%;
+	min-height: 100%
+} 
+#lending{
+	width:88%;
+	min-height: 100%
+}
+#owned, #borrowed, #lending, #welcome, #info, #requests{
+	background-color:#E6E6E6;
+}
+#aboutText{
+	font-size: 15pt;
+}
+</style>
+
+<table id="profileTable">
+	<tr height="10%">
+		
+		{% if user == targetUser %}
+		<td colspan="3">
+		{% else %}
+		<td colspan="4">
+		{% endif %}
+			<div id="welcome" class="well">
+				{% if user == targetUser %}
+				<h2>Welcome, {{user}}.</h2>
+				{% else %}
+				<table>
+					<tr>
+						<td width="90%">
+							<h2>{{targetUser}}'s Profile</h2>
+						</td>
+						<td>
+							<a class="btn btn-lg" href="/message/{{targetUser}}">Message {{targetUser}}</a>
+						</td>
+					</tr>
+
+				</table>
+				
+				
+				
+				{% endif %}
+			</div>	
+		</td>
+		{% if user == targetUser %}
+			<td rowspan="2">
+				<div id="info" class="well">
+					<h3>About {{targetUser}}</h3>
+					<table width="100%">
+						<tr>
+							<td width="40%">
+								<p id="about"><span id="aboutText"><u>Username:</u> {{targetUser}}</span></p>
+								<p id="about"><span id="aboutText"><u>Full Name:</u> {{name}}</span></p>
+								<p id="about"><span id="aboutText"><u>Address:</u> {{ address }}</span></p>
+							</td>
+							<td  width="60%">
+								<p id="about"><span id="aboutText"><u>ShareZone Zipcode:</u> {{zipCode}}</span></p>
+								{% if shed %}
+									<p id="about"><span id="aboutText"><u>Shed:</u> <a href="/sheds/{{shed.id}}/">{{shed.name}}</a></span></p>
+								{% endif %}
+								<p id="about"><span id="aboutText"><u>My Pickup Arrangements:</u> {{toolUser.pickup}}</span></p>
+							</td>
+						</tr>
+					</table>
+				</div>
+			{% endif %}
+	</tr>
+
+	{% if user == targetUser %}
+	<tr height="15%">
+	{% else %}
+	<tr height="90%">
+	{% endif %}
+		<td rowspan="2" id="ownedCol">
+			<div id="owned" class="well">
+				<h3>Owned Tools</h3>
+				{% if user == targetUser %}
+					{% if ownedTools %}
+					<p>
+			          {% for tool in ownedTools %}
+			          <p id="own"><u><span style="font-size:16px;"><a href="/tools/{{tool.toolId}}">{{ tool }}</a></span></u></p>
+			          {% endfor %}
+			          <a id="own" class="btn btn-primary btn-lg" href="/registertool/">Register a tool</a>
+			        </p>
+			        {% else %}
+		        	<p id="own">You have no tools. Click <a href="/registertool/">here</a> to register one!</p>
+		        	{% endif %}
+		        {% else %}
+			        {% if ownedTools %}
+					<p>
+			          {% for tool in ownedTools %}
+			          <p id="own"><u><span style="font-size:16px;"><a href="/tools/{{tool.toolId}}">{{ tool }}</a></span></u></p>
+			          {% endfor %}
+			        </p>
+			        {% else %}
+			        <p id="own">{{targetUser}} has not registered any tools.</p>
+					{% endif %}
+				{% endif %}
+			</div>
+		</td>
+		<td rowspan="2" id="borrowedCol">
+			<div id="borrowed" class="well">
+				<h3>Borrowed Tools</h3>
+				{% if borrowedTools %}
+					{% for tool in borrowedTools %}
+						{% if user == tool.owner.user %}
+						<p id="borrow"><span style="font-size:16px;">Your <u><a href="/tools/{{tool.toolId}}">{{ tool }}</a></span></u></p>
+						{% else %}
+						<p id="borrow"><span style="font-size:16px;"><a href="/users/{{ tool.owner }}">{{ tool.owner }}</a>'s <u><a href="/tools/{{tool.toolId}}">{{ tool }}</a></span></u></p>
+						{% endif %}
+					{% endfor %}
+				{% else %}
+					{% if user == targetUser %}
+						<p id="borrow">You are not borrowing any tools</p>
+					{% else %}
+						<p id="borrow">{{ targetUser }} is not borrowing any tools</p>
+					{% endif %}
+				{% endif %}
+			</div>
+		</td>
+		<td rowspan="2" id="lendingCol">
+			<div id="lending" class="well">
+				<h3>Loaned Tools</h3>
+				{% if loanedTools %}
+					{% for tool in loanedTools %}
+						{% if user == targetUser %}
+							<span style="font-size:16px;">
+								<p><a class="btn btn-lg" href="/returned/{{ tool.toolId }}">Returned</a><a href="/users/{{ tool.currentUser }}"> {{ tool.currentUser }}</a> is using <u><a href="/tools/{{tool.toolId}}">{{ tool }} </a>
+								</span></u></p>
+						{% else %}
+							<p><span style="font-size:16px;"><a href="/users/{{ tool.currentUser }}">{{ tool.currentUser }}</a> is using <u><a href="/tools/{{tool.toolId}}">{{ tool }} </a></span></u></p>
+						{% endif %}
+					{% endfor %}
+				{% else %}
+					{% if user == targetUser %}
+						<p>You are not lending any tools.</p>
+					{% else %}
+						<p>{{ targetUser }} is not lending any tools.</p>
+					{% endif %}
+				{% endif %}
+				
+				
+			</div>
+		</td>
+		{% if user != targetUser %}
+			<td>
+				<div id="info" class="well">
+					<h3>About {{targetUser}}</h3>
+						<p id="about"><span id="aboutText"><u>Username:</u> {{targetUser}}</span></p>
+						<p id="about"><span id="aboutText"><u>Full Name:</u> {{name}}</span></p>
+						<p id="about"><span id="aboutText"><u>Address:</u> {{ address }}</span></p>
+					
+						<p id="about"><span id="aboutText"><u>ShareZone Zipcode:</u> {{zipCode}}</span></p>
+						{% if shed %}
+							<p id="about"><span id="aboutText"><u>Shed:</u> <a href="/sheds/{{shed.id}}/">{{shed.name}}</a></span></p>
+						{% endif %}
+						
+						<p id="about"><span id="aboutText"><u>My Pickup Arrangements:</u> {{toolUser.pickup}}</span></p>	
+				</div>
+			</td>
+		{% endif %}
+	</tr>
+	<tr height="75%">
+		{% if targetUser == user %}
+	      <td>
+			<div id="requests" class="well">
+				<h3>Borrow Requests</h3>
+				{% if requestList %}
+				{% for request in requestList %}
+				 	{% if request.tool in ownedTools %}
+		            <li>{{request.requester}} would like to borrow your <a href="/tools/{{request.tool.toolId}}">{{request.tool}}</a>  (<a href="/accept_request/{{request.requestId}}" class="btn btn-primary btn-lg">Accept</a>, <a href="/deny_request/{{request.requestId}}" class="btn btn-primary btn-lg">Decline</a>)</li>
+		        	{% endif %}
+		        {% endfor %}
+		        {% else %}
+		        <p>You currently don't have any requests to borrow your tools.</p>
+		        {% endif %}
+			</div>
+
+		</td>
+	   	{% endif %}
+		
+	</tr>
+</table>	
+
+{% endblock %}

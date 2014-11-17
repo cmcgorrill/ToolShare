@@ -1,0 +1,55 @@
+{% extends "mybase.html" %}
+
+{% block title %}Create a Shed{% endblock %}
+
+{% block pagename %}Create a Shed{% endblock %}
+
+{% block nav %}
+    <li><a href="/">Home</a></li>
+    <li><a href="/users/">Users</a></li>
+    <li><a href="/tools/">Tools</a></li>
+    <li class="active"><a href="/sheds/">Sheds</a></li>
+    {% if user.is_authenticated %}
+    <li><a href="/messages/">Messages</a></li>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+
+{% if not user.is_authenticated %}
+It seems as though you haven't <a href="/login">logged in</a>. If you're new to ToolShare, <a href="/register/">register</a>.
+{% else %}
+
+<form action="" method="post">
+
+	{% csrf_token %}
+	{% if form.errors %}<p>Please correct the following fields:</p>{% endif %}
+	
+	<div id="content" align="center">
+		<div class="register_div">
+			{% if form.name.errors %}<p id="error">{{ form.name.errors }}</p>{% endif %}
+			<p><label for="name"{% if form.name.errors %} class="error"{% endif %}>Shed Name: {{ form.name }}</label></p>
+			
+		</div>
+
+		<div class="register_div">
+			{% if form.motto.errors %}<p id="error">{{ form.motto.errors }}</p>{% endif %}
+			<p><label for="motto"{% if form.name.errors %} class="error"{% endif %}>Shed Motto: {{ form.motto }}</label></p>
+			
+		</div>
+
+		<div class="register_div">
+			{% if form.description.errors %}<p id="error">{{ form.description.errors }}</p>{% endif %}
+			<p><label for="description"{% if form.description.errors %} class="error"{% endif %}>Shed Description: {{ form.description }}</label></p>
+			
+		</div>
+
+		<p><input type="submit" alt="register" align="center"/></p>
+
+
+	</div>
+
+</form>
+
+{% endif %}
+{% endblock %}

@@ -1,0 +1,122 @@
+{% extends "mybase.html" %}
+
+{% block pagename %}{{shed.name}}{% endblock %}
+
+{% block nav %}
+    <li><a href="/">Home</a></li>
+    <li><a href="/users/">Users</a></li>
+    <li><a href="/tools/">Tools</a></li>
+    <li class="active"><a href="/sheds/">Sheds</a></li>
+    {% if user.is_authenticated %}
+    <li><a href="/messages/">Messages</a></li>
+    {% endif %}
+{% endblock %}
+
+{% block content %} 
+
+<style>
+#right{
+    float: right;
+}
+#left{
+    float: left;
+}
+#profileTable{
+    width:100%;
+    height:100%;
+}
+#about{
+    margin-left:10%;
+}
+#own{
+    margin-left: 15%;
+}
+#borrow{
+    margin-left: 10%;
+}
+#requests{
+    height: 95%;
+    min-height: 100%
+}
+#ownedCol{
+    width:17%;
+    min-height: 100%;
+}
+#borrowedCol{
+    width:19%;
+    min-height: 100%
+}
+#lendingCol{
+    width:28%;
+    min-height: 100%
+}
+#welcome{
+    width:92%;
+    padding: 1%;
+    top:0;
+}
+#info{
+    top:0;
+}
+#owned{
+    width:79%;
+    min-height: 100%
+}
+#borrowed{
+    width:81%;
+    min-height: 100%
+} 
+#owned, #borrowed, #lending, #welcome, #info, #requests{
+    background-color:#E6E6E6;
+}
+#aboutText{
+    font-size: 15pt;
+}
+</style>
+
+<table id="profileTable">
+    <tr height="10%">
+        
+        <td colspan="3">
+            <div id="welcome" class="well" width="90%">
+                <h2>{{shed.name}}</h2>
+            </div>  
+        </td>
+        <td rowspan="3" width="25%">
+            <div id="info" class="well">
+                <h3>Shed Coordinator</h3>
+                <a href="/users/{{shed.coordinator.user.username}}/">{{shed.coordinator}}</a>
+                <h3>Description</h3>
+                <p style="padding-top=10px;padding-bottom:20px; padding-left:20px;">{{shed.description}}</p>
+                {% if user.get_profile == shed.coordinator %}
+                <a class="btn" href="/remove_toolshed/">Delete your shed</a>
+                {% endif %}
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td rowspan="2" id="ownedCol">
+            <div id="owned" class="well">
+                
+                <h3>Tools Listed In Shed</h3>
+                {% if tools %}
+                {% for tool in tools %}
+                <p style="padding-left:10px;"><a href="/tools/{{tool.toolId}}">{{tool}}</a>{% ifequal shed.coordinator user.get_profile %} (<a href="/remove_tool_from_shed/{{tool.toolId}}">Remove</a>) {% endifequal %}</p>
+                {% endfor %}
+                {% else %}
+                There are no tools in the shed.<br/>
+                {% endif %}
+            </div>
+        </td>
+        <td rowspan="2" id="borrowedCol">
+            <div id="borrowed" class="well">
+                <h3>Users With Access</h3>
+                    
+            </div>
+        </td>
+    </tr>
+    <tr>
+    </tr>
+</table>    
+
+{% endblock %}

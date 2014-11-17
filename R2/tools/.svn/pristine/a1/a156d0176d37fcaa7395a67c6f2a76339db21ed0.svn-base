@@ -1,0 +1,46 @@
+from django.conf.urls import patterns, include, url
+
+# Uncomment the next two lines to enable the admin:
+from django.contrib import admin
+admin.autodiscover()
+
+urlpatterns = patterns('',
+    # Examples:
+    # url(r'^$', 'toolShare.views.home', name='home'),
+    # url(r'^toolShare/', include('toolShare.foo.urls')),
+
+    # Uncomment the admin/doc line below to enable admin documentation:
+    # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
+
+    # Uncomment the next line to enable the admin:
+    url(r'^admin/', include(admin.site.urls)),
+    (r'^$', 'tool_share.views.index'),
+    (r'^register/$', 'tool_share.views.ToolUserRegistration'),
+    (r'^login/$', 'tool_share.views.LoginRequest'),
+    (r'^logout/$', 'tool_share.views.LogoutRequest'),
+    (r'^tools/$', 'tool_share.views.tools'),
+    (r'^tools/(?P<toolId>.+)/$', 'tool_share.views.toolPage'),
+    (r'^choose_shed/(?P<toolId>.+)/$','tool_share.views.chooseShed'),
+    (r'^add_tool_to_shed/(?P<toolId>.+)/(?P<shedId>.+)/$','tool_share.views.addToolToShed'),
+    (r'^remove_tool_from_shed/(?P<toolId>.+)/$','tool_share.views.removeToolFromShed'),
+    (r'^users/$', 'tool_share.views.users'),
+    (r'^users/(?P<username>.+)/$', 'tool_share.views.userPage'),
+    (r'^sheds/$', 'tool_share.views.sheds'),
+    (r'^sheds/(?P<shedId>.+)/$', 'tool_share.views.shedPage'),
+	(r'^edit/$', 'tool_share.views.editUserPage'),
+    (r'^messages/', include('postman.urls')),
+    (r'^registertool/$', 'tool_share.views.ToolRegistration'),
+    (r'^deregistertool/(?P<toolId>.+)/$', 'tool_share.views.ToolDeregistration'),
+    (r'^request/(?P<toolId>.+)/$', 'tool_share.views.RequestTool'),
+    (r'^accept_request/(?P<requestId>.+)/$', 'tool_share.views.acceptRequest'),
+    (r'^deny_request/(?P<requestId>.+)/$', 'tool_share.views.denyRequest'),
+    (r'^returned/(?P<toolId>.+)/$', 'tool_share.views.returned'),
+    (r'^newHome/$', 'tool_share.views.newHome'),
+    (r'^create_toolshed/$', 'tool_share.views.shedCreation'),
+    (r'^messagecenter/$', 'tool_share.views.messagecenter'),
+    (r'^message/$', 'tool_share.views.messageUser'),
+    (r'^message_page/(?P<messageId>.+)/$', 'tool_share.views.message_page'),
+    (r'^message/(?P<reciever>.+)/$', 'tool_share.views.messageUser'),
+    (r'^remove_toolshed/$', 'tool_share.views.remove_toolshed'),
+    #for legacy support
+    (r'^profile/$', 'tool_share.views.profile'),)

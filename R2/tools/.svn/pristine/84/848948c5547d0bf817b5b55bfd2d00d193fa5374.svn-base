@@ -1,0 +1,40 @@
+{% extends "message_center.html" %}
+{% load url from future %}{% load i18n %}{% load postman_tags %}
+{% block title %}{% trans "Messaging" %}{% endblock %}
+{% block extrahead %}{{ block.super }}
+<link type="text/css" media="all" rel="stylesheet" href="
+{# dj v1.4 #}{% load static %}{% static 'postman/css/postman.css' %}
+{# dj v1.3 #}{# {{ STATIC_URL }}postman/css/postman.css #}
+{# dj v1.2 #}{# {{ MEDIA_URL }}postman/css/postman.css #}
+" />{% endblock %}
+
+{% postman_unread as unread_count %}
+{% block postman_menu_inbox %}
+<div class="well">
+	<span style="font-size:28px;"><a href="{% url 'postman_inbox' %}">{% trans "Inbox" %}{% if unread_count %} <strong>({{ unread_count }})</strong>{% endif %}</a></span>
+</div>
+{% endblock %}
+
+{% block postman_menu_sent %}
+<div class="well">
+	<span style="font-size:28px;"><a id="menu" href="{% url 'postman_sent' %}">{% trans "Sent" %}</a></span>
+</div>
+{% endblock %}
+
+{% block postman_menu_write %}
+<div class="well">
+	<span style="font-size:28px;"><a id="menu" href="{% url 'postman_write' %}">{% trans "Write" %}</a></span>
+</div>
+{% endblock %}
+
+{% block postman_menu_archives %}
+<div class="well">
+	<span style="font-size:28px;"><a id="menu" href="{% url 'postman_archives' %}">{% trans "Archives" %}</a></span>
+</div>
+{% endblock %}
+
+{% block postman_menu_trash %}
+<div class="well">
+	<span style="font-size:28px;"><a id="menu" href="{% url 'postman_trash' %}">{% trans "Trash" %}</a></span>
+</div>
+{% endblock %}

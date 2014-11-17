@@ -1,0 +1,119 @@
+{% extends "mybase.html" %}
+
+{% block title %}{{user}}'s Profile{% endblock %}
+
+{% block pagename %}{{user}}'s Profile{% endblock %}
+
+{% block content %}	
+
+<style>
+#right{
+	float: right;
+}
+#left{
+	float: left;
+}
+#profileTable{
+	width:100%;
+	height:100%;
+}
+#requests{
+	height: 95%;
+}
+#col{
+	width:25%;
+}
+#welcome{
+	width:95%;
+}
+#owned, #borrowed, #lending{
+	width:85%;
+}
+#owned, #borrowed, #lending, #welcome, #info, #requests{
+	background-color:#E6E6E6;
+}
+</style>
+
+<table id="profileTable">
+	<tr>
+		<td colspan="3">
+			<div id="welcome" class="well">
+				<h2>Welcome, {{user}}.</h2>
+				<a class="btn btn-primary btn-lg" href="/registertool/">Register a tool</a>
+			</div>	
+		</td>
+		{% if requestList %}
+			<td rowspan="2">
+		{% else %}
+			<td rowspan="4">
+		{% endif %}
+				<div id="info" class="well">
+					<h3>About Me</h3>
+					<p>Username: {{user}}</p>
+					<p>First Name: </p>
+					<p>Email: </p>
+					<p>ShareZone Zipcode: </p>
+					<p>Sheds I Coordinate: (if any)</p>
+					<p>Sheds I Belong To: (if any)</p>
+					<p>My Rating: (from other users)</p>
+				</div>
+			</td>
+
+	</tr>
+	<tr>
+		<td id="col" rowspan="3">
+			<div id="owned" class="well">
+				<h3>Tools I Own</h3>
+				<p>
+		          {% for tool in ownedTools %}
+		          <li><p><u><span style="font-size:16px;"><a href="/tools/{{tool.toolId}}">{{ tool }}</a></span></u></p></li>
+		          {% endfor %}
+		        </p>
+			</div>
+		</td>
+		<td id="col" rowspan="3">
+			<div id="borrowed" class="well">
+				<h3>Tools I'm Borrowing</h3>
+				<p>
+		            {% for tool in borrowedTools %}
+		            {% if tool.owner != toolUser %}
+		            <li><p><u><span style="font-size:16px;"><a href="/tools/{{tool.toolId}}">{{tool}}</a> is being borrowed from <a href="/profile/{{tool.owner.username}}">{{tool.owner}}</a></span></u></p></li>
+		            {% endif %}
+		            {% endfor %}
+		          </p>
+			</div>
+		</td>
+		<td id="col" rowspan="3">
+			<div id="lending" class="well">
+				<h3>Tools I'm Lending</h3>
+				<p>
+		            {% for tool in ownedTools %}
+		            {% if tool.currentUser != tool.owner %}
+		            <li><p><u><span style="font-size:16px;"><a href="/profile/{{tool.owner.username}}">{{tool.currentUser}}</a> is borrowing <a href="/tools/{{tool.toolId}}">{{tool}}</a>   <a href="/returned/{{tool.toolId}}">Tool has been returned</a></span></u></p></li>
+		            {% endif %}
+		            {% endfor %}
+		          </p>
+			</div>
+		</td>
+	</tr>
+	<tr>
+		 {% if requestList %}
+	      <td rowspan="2">
+			<div id="requests" class="well">
+				<h3>Requests to Borrow</h3>
+				 {% for request in requestList %}
+		            <li>{{request.requester}} would like to borrow your <a href="/tools/{{request.tool.toolId}}">{{request.tool}}</a>  (<a href="/accept_request/{{request.requestId}}" class="btn btn-primary btn-lg">Accept</a>, <a href="/deny_request/{{request.requestId}}" class="btn btn-primary btn-lg">Decline</a>)</li>
+		            {% endfor %}
+			</div>
+
+		</td>
+	    {% endif %}
+		
+	</tr>
+	<tr>
+		
+	</tr>
+</table>	
+
+{% endblock %}
+	

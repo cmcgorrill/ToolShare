@@ -1,0 +1,22 @@
+{% extends "mybase.html" %}
+
+{% block nav %}
+    <li><a href="/">Home</a></li>
+    <li><a href="/users/">Users</a></li>
+    <li><a href="/tools/">Tools</a></li>
+    <li><a href="/sheds/">Sheds</a></li>
+    <li class="active"><a href="/messagecenter/">Messages</a></li>
+{% endblock %}
+
+{% block content %}
+
+<div class="well">
+	<p>From: {{sender}}</p>
+	<p>To: {{reciever}}</p>
+	<p>{{date}}</p>
+	<p>{{subject}}</p>
+	<p>{{message}}</p>
+	<a class="btn btn-lg" href="/message/{{sender}}">Reply</a>
+</div>
+
+{% endblock %}

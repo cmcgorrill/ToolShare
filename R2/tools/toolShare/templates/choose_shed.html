@@ -1,0 +1,30 @@
+{% extends "mybase.html" %}
+
+{% block nav %}
+    <li><a href="/">Home</a></li>
+    <li><a href="/users/">Users</a></li>
+    <li><a href="/tools/">Tools</a></li>
+    <li class="active"><a href="/sheds/">Sheds</a></li>
+    {% if user.is_authenticated %}
+	<li><a href="/messages/">Messages</a></li>
+	{% endif %}
+{% endblock %}
+
+{% block content %}
+
+{% if sheds %}
+
+	Choose a shed for your {{tool}}.<br/>
+
+	{% for shed in sheds %}
+	<p><a href="/add_tool_to_shed/{{tool.toolId}}/{{shed.id}}">{{shed.name}}</a></p>
+	{% endfor %}
+
+{% else %}
+	
+	Sorry, there aren't any sheds in your share zone. Why not <a href="/create_toolshed/">create one</a>?
+
+{% endif %}
+
+
+{% endblock %}

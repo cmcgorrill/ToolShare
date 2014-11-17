@@ -1,0 +1,503 @@
+from django.shortcuts import render_to_response
+from django.template import RequestContext
+from django.http import HttpResponseRedirect
+from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, login, logout, hashers
+from tool_share.forms import *
+from tool_share.models import *
+import random
+
+def tools(request):
+	if request.user.is_authenticated():
+		user = ToolUser.objects.get(user=request.user)
+		tools = Tool.objects.all().filter(zipCode=user.zipCode)
+		context = {'zipCode':user.zipCode,'tools':tools}
+		return render_to_response('listing.html', context, context_instance=RequestContext(request))
+	else:
+		tools = Tool.objects.all()
+		context = {'tools':tools}
+		return render_to_response('listing.html', context, context_instance=RequestContext(request))
+
+def toolPage(request, toolId = ""):
+	try:
+		tool = Tool.objects.get(toolId=toolId)
+	except ValueError:
+		#toolId wasn't an integer
+		return HttpResponseRedirect('/tools/')
+	except Tool.DoesNotExist:
+		return HttpResponseRedirect('/tools/')
+	tool = Tool.objects.get(toolId=toolId)
+	context = {'tool':tool,'toolType':tool.toolType,'toolUser':tool.owner,'description':tool.description,'isAvailable':tool.availability,'location':tool.homeLocation,'id':tool.toolId, 'currentUser':tool.currentUser}
+	
+	if tool.shed == -1:
+		#tool isn't in a shed
+		context['inshed'] = False
+	else:
+		#tool is in a shed
+		context['inshed'] = True
+		context['shed'] = Shed.objects.get(id=tool.shed)
+
+	return render_to_response('tool_page.html',context,context_instance=RequestContext(request))
+
+def chooseShed(request, toolId = ""):
+	
+	try:
+		tool = Tool.objects.get(toolId=int(toolId))
+	except Tool.DoesNotExist:
+		return HttpResponseRedirect('/tools/')
+	except ValueError:
+		#toolId wasn't an integer
+		return HttpResponseRedirect('/')
+
+	#make sure the user is logged in and the owner of the tool
+	if not request.user.is_authenticated():
+		return HttpResponseRedirect('/')
+	if not request.user.get_profile() == tool.owner:
+		return HttpResponseRedirect('/tools/')
+
+	sheds = Shed.objects.all().filter(zipCode=request.user.get_profile().zipCode).order_by('name')
+	context = {'tool':tool, 'sheds':sheds}
+	return render_to_response('choose_shed.html',context,context_instance=RequestContext(request))
+
+def addToolToShed(request, toolId = "", shedId = ""):
+
+	try:
+		tool = Tool.objects.get(toolId=int(toolId))
+		shed = Shed.objects.get(id=int(shedId))
+	except Tool.DoesNotExist:
+		return HttpResponseRedirect('/tools/')
+
+	#make sure the user is logged in and the owner of the tool
+	if not request.user.is_authenticated():
+		return HttpResponseRedirect('/')
+	if not request.user.get_profile() == tool.owner:
+		return HttpResponseRedirect('/tools/')
+
+	tool.shed = shed.id
+	tool.save()
+	return render_to_response('success.html',{'message':'The tool has been added to '+shed.name+'.'},context_instance=RequestContext(request))
+
+def removeToolFromShed(request, toolId = ""):
+
+	try:
+		tool = Tool.objects.get(toolId=int(toolId))
+		shed = Shed.objects.get(id=tool.shed)
+	except Tool.DoesNotExist:
+		return HttpResponseRedirect('/tools/')
+	except Shed.DoesNotExist:
+		return HttpResponseRedirect('/tools/')
+
+	#make sure the user is logged in and the owner of the tool
+	if not request.user.is_authenticated():
+		return HttpResponseRedirect('/')
+	if not request.user.get_profile() == tool.owner and not request.user.get_profile() == shed.coordinator:
+		return HttpResponseRedirect('/tools/')
+
+	tool.shed = -1
+	tool.save()
+	return render_to_response('success.html',{'message':'The '+tool.toolType+' has been removed from '+shed.name+'.'}, context_instance=RequestContext(request))
+
+def users(request):
+	if request.user.is_authenticated():
+		user = ToolUser.objects.get(user=request.user)
+		zipCode = user.zipCode
+		users = ToolUser.objects.all().filter(zipCode=zipCode)
+		context = {'zipCode':zipCode,'users':users}
+		return render_to_response('users.html', context, context_instance=RequestContext(request))
+	else:
+		users = ToolUser.objects.all()
+		context = {'users':users}
+		return render_to_response('users.html', context, context_instance=RequestContext(request))
+
+def userPage(request, username=""):
+	try:
+		user = User.objects.get(username=username)
+	except User.DoesNotExist:
+		return HttpResponseRedirect('/users/')
+	targetUser = User.objects.get(username=username)
+	toolUser = ToolUser.objects.get(user=user)
+	name = toolUser.name
+	address = toolUser.address
+	zipCode = toolUser.zipCode
+	ownedTools = Tool.objects.all().filter(owner=toolUser)
+	borrowedTools = Tool.objects.all().exclude(owner=toolUser).filter(currentUser=toolUser)
+	loanedTools = Tool.objects.all().filter(owner=toolUser).exclude(currentUser=toolUser)
+	requestList = ToolRequest.objects.all()
+	context = {'targetUser':targetUser,'toolUser':toolUser,'name':name,'address':address,'zipCode':zipCode,'ownedTools':ownedTools, 'requestList':requestList, 'borrowedTools':borrowedTools, 'loanedTools':loanedTools}
+	try:
+		shed = Shed.objects.get(coordinator=toolUser)
+		context['shed'] = shed
+	except Shed.DoesNotExist:
+		pass
+	return render_to_response('userPage.html', context, context_instance=RequestContext(request))
+
+def editUserPage(request):
+	if not request.user.is_authenticated:
+		return HttpResponseRedirect('/')
+
+	if request.method=='POST':
+		form=EditUserForm(request.POST)
+		if form.is_valid():
+			user = request.user
+			toolUser = user.get_profile()
+
+			try:
+				name = form.cleaned_data['name']
+				toolUser.name = name
+				toolUser.save()
+			except KeyError:
+				pass
+
+#			try:
+#				email = form.cleaned_data['email']
+#				user.email = email
+#				user.save()
+#			except KeyError:
+#				pass
+
+			try:
+				address = form.cleaned_data['address']
+				toolUser.address = address
+				toolUser.save()
+			except KeyError:
+				pass
+
+			try:
+				zipCode = form.cleaned_data['zipCode']
+				toolUser.zipCode = zipCode
+				toolUser.save()
+			except KeyError:
+				pass
+
+			try:
+				pickup = form.cleaned_data['pickup']
+				toolUser.pickup = pickup
+				toolUser.save()
+			except KeyError:
+				pass
+
+			#password is a little different. If either field is blank
+			#the form adds cleaned_data['password'] = ''
+			if not form.cleaned_data['password'] == '':
+				user.password = hashers.make_password(form.cleaned_data['password'])
+				user.save()
+
+			#for good measure
+			user.save()
+			toolUser.save()
+
+			return HttpResponseRedirect('/users/'+str(user.username))
+		else:
+			return render_to_response('edit.html', {'form':form}, context_instance=RequestContext(request))
+	else:
+		user = request.user
+		toolUser = user.get_profile()
+		form = EditUserForm({'name':toolUser.name,'address':toolUser.address,'zipCode':toolUser.zipCode,'pickup':toolUser.pickup})#,'email':user.email})
+		context = {'form':form}
+		return render_to_response('edit.html', context, context_instance=RequestContext(request))
+
+	
+def profile(request):
+	return HttpResponseRedirect('/users/'+request.user.username)
+
+def sheds(request):
+	if request.user.is_authenticated():
+		sheds = Shed.objects.all().filter(zipCode=request.user.get_profile().zipCode).order_by('name')
+	else:
+		sheds = Shed.objects.all().order_by('name')
+	return render_to_response('sheds.html', {'sheds':sheds}, context_instance=RequestContext(request))
+
+def shedPage(request, shedId = ""):
+	try:
+		shed = Shed.objects.get(id=int(shedId))
+	except Shed.DoesNotExist:
+		return HttpResponseRedirect('/sheds/')
+
+	tools = Tool.objects.all().filter(shed=int(shedId))
+	context = {'shed':shed,'tools':tools}
+	return render_to_response('shedPage.html', context, context_instance=RequestContext(request))
+
+def index(request):
+	if request.user.is_authenticated():
+		updates = Update.objects.all().order_by('id')[:5].reverse()
+		context = {'updates':updates}
+		return render_to_response('index.html', context, context_instance=RequestContext(request))
+	else:
+		return render_to_response('index.html', context_instance=RequestContext(request))
+
+def ToolUserRegistration(request):
+	if request.user.is_authenticated():
+		return HttpResponseRedirect('/users/'+str(request.user))
+	if request.method == 'POST':
+		form = RegistrationForm(request.POST)
+		if form.is_valid():
+			user = User.objects.create_user(username=form.cleaned_data['username'],email=form.cleaned_data['email'],password=form.cleaned_data['password'])
+			try:
+				user.pickup = form.cleaned_data['pickup']
+			except KeyError:
+				pass
+			user.save()
+			toolUser=ToolUser(user=user,name=form.cleaned_data['name'],address=form.cleaned_data['address'],zipCode=form.cleaned_data['zipCode'])
+			#the pickup is optional, so it might not be there
+			try:
+				toolUser.pickup = form.cleaned_data['pickup']
+			except KeyError:
+				pass
+			toolUser.save()
+			return HttpResponseRedirect('/login/')
+		else:
+			return render_to_response('register.html', {'form':form}, context_instance=RequestContext(request))
+	else:
+		"""user is not submitting the form, show a blank registration form"""
+		form = RegistrationForm()
+		context = {'form':form}
+		return render_to_response('register.html', context, context_instance=RequestContext(request))
+
+def LoginRequest(request):
+	if request.user.is_authenticated():
+		return HttpResponseRedirect('/users/'+str(request.user))
+	if request.method=='POST':
+		form = LoginForm(request.POST)
+		if form.is_valid():
+			username = form.cleaned_data['username']
+			password = form.cleaned_data['password']
+			#authenticate() was responding badly to password resetting,
+			#so this is a way around it
+			user = User.objects.get(username=username)
+			user.backend = 'django.contrib.auth.backends.ModelBackend'
+			login(request, user)
+			return HttpResponseRedirect('/')
+		else:
+			return render_to_response('login.html', {'form':form}, context_instance=RequestContext(request))
+		
+	else:
+		"""user didn't submit yet"""
+		form = LoginForm()
+		context = {'form':form}
+		return render_to_response('login.html', context, context_instance=RequestContext(request))
+
+def LogoutRequest(request):
+	logout(request)
+	return HttpResponseRedirect('/')
+		
+def ToolRegistration(request):
+	if request.user.is_authenticated():
+		if request.method=='POST':
+			form=ToolRegistrationForm(request.POST)
+			if form.is_valid():
+				toolType = form.cleaned_data['toolType']
+				description = form.cleaned_data['description']
+				user = request.user.get_profile()
+				
+				#generate a random slug for the tool and make sure no
+				#other tool already has it
+				while True:
+					slug = random.randint(0,999999999)
+					try:
+						Tool.objects.get(toolId=slug)
+					except Tool.DoesNotExist:
+						break
+
+				tool=Tool(toolId=slug,toolType=toolType,slug=slug,owner=user,shed=-1,description=description, availability=1,homeLocation=user.address,zipCode=user.zipCode,currentUser=user)
+				tool.save()
+				user.save()
+				return HttpResponseRedirect('/users/'+str(tool.owner.user))
+			else:
+				return render_to_response('registertool.html', {'form':form}, context_instance=RequestContext(request))
+		else:
+			form = ToolRegistrationForm()
+			context = {'form':form}
+			return render_to_response('registertool.html', context, context_instance=RequestContext(request))
+	else:
+		return HttpResponseRedirect('/')
+
+def ToolDeregistration(request,toolId=""):
+	#make sure the user is signed in
+	if not request.user.is_authenticated():
+		return HttpResponseRedirect('/')
+	
+	#make sure it's not some troublemaker randomly typing things
+	try:
+		tool = Tool.objects.get(toolId = toolId)
+	except Tool.DoesNotExist:
+		return HttpResponseRedirect('/tools/')
+
+	#make sure it's the owner of the tool accessing this link
+	if not request.user.get_profile() == tool.owner:
+		return HttpResponseRedirect('/tools/')
+
+	name = tool.toolType
+	tool.delete()
+
+	return render_to_response('success.html',{'message':'Your ' + name + 'has been deregistered.'}, context_instance=RequestContext(request))
+
+def RequestTool(request,toolId = ""):
+	#make sure the user is signed in
+	if not request.user.is_authenticated():
+		return HttpResponseRedirect('/')
+	
+	#make sure it's not some troublemaker randomly typing things
+	try:
+		Tool.objects.get(toolId = toolId)
+	except Tool.DoesNotExist:
+		return HttpResponseRedirect('/tools/')
+	
+	#prevents refreshing the page from adding more requests
+	tool = Tool.objects.get(toolId = toolId)
+	if(tool.availability == 0):
+		return HttpResponseRedirect('/users/'+str(tool.owner.user)+str(toolId))
+	try:
+		ToolRequest.objects.get(tool = tool, requester = ToolUser.objects.get(user=request.user))
+	except ToolRequest.DoesNotExist:
+		while True:
+					slug = random.randint(0,999999999)
+					try:
+						ToolRequest.objects.get(requestId=slug)
+					except ToolRequest.DoesNotExist:
+						break
+
+		toolrequest = ToolRequest (requestId=slug, tool=tool, requester=ToolUser.objects.get(user=request.user))
+		toolrequest.save()
+		tool.owner.save()
+		return render_to_response('success.html',{"message":""+tool.toolType+" has been requested."},context_instance =RequestContext(request))
+	return HttpResponseRedirect('/users/'+str(tool.owner.user))
+
+def acceptRequest(request, requestId = ""):
+	#if the user isn't signed in he has no business being here
+	if not request.user.is_authenticated():
+		return HttpResponseRedirect('/')
+	#make sure this isn't some troublemaker typing in random links
+	try:
+		toolRequest = ToolRequest.objects.get(requestId=requestId)
+	except ToolRequest.DoesNotExist:
+		return HttpResponseRedirect('/')
+
+	toolRequest = ToolRequest.objects.get(requestId=requestId)
+	toolRequest.tool.currentUser = toolRequest.requester
+	toolRequest.tool.availability = 0
+	toolRequest.tool.save()
+	toolRequest.delete()
+
+	return HttpResponseRedirect('/users/'+str(toolRequest.tool.owner.user))
+
+def denyRequest(request, requestId = ""):
+	if not request.user.is_authenticated():
+		return HttpResponseRedirect('/')
+	try:
+		toolRequest = ToolRequest.objects.get(requestId=requestId)
+	except ToolRequest.DoesNotExist:
+		return HttpResponseRedirect('/')
+	toolRequest = ToolRequest.objects.get(requestId=requestId)
+	
+	return HttpResponseRedirect('/users/'+str(toolRequest.tool.owner.user))
+
+def returned(request, toolId = ""):
+	if not request.user.is_authenticated():
+		return HttpResponseRedirect('/')	
+
+	tool = Tool.objects.get(toolId=toolId)
+	if ToolUser.objects.get(user=request.user) == tool.owner:
+		tool.currentUser = tool.owner
+		tool.availability = 1
+		tool.currentUser.save()
+		tool.save()
+		return HttpResponseRedirect('/users/'+str(tool.owner.user))
+	else:
+		return HttpResponseRedirect('/')
+
+def newHome(request):
+	return render_to_response('basenew.html',context_instance=RequestContext(request))
+
+def shedCreation(request):
+	if not request.user.is_authenticated():
+		#user isn't signed in
+		return render_to_response('shed_creation.html',context_instance=RequestContext(request))
+	try:
+		Shed.objects.get(coordinator=request.user.get_profile())
+	except Shed.DoesNotExist:
+		#user hasn't created a shed yet
+		if request.method=='POST':
+			form = ShedCreationForm(request.POST)
+			if form.is_valid():
+				name = form.cleaned_data['name']
+				shed = Shed(name=name, coordinator=request.user.get_profile(), zipCode=request.user.get_profile().zipCode, motto=form.cleaned_data['motto'],description=form.cleaned_data['description'])
+				shed.save()
+				return render_to_response('success.html',{"message":shed.name+" has been successfully created."}, context_instance=RequestContext(request))
+			else:
+				return render_to_response('shed_creation.html', {'form':form}, context_instance=RequestContext(request))
+			
+		else:
+			"""user didn't submit yet"""
+			form = ShedCreationForm()
+			context = {'form':form}
+			return render_to_response('shed_creation.html', context, context_instance=RequestContext(request))
+	#user already created a shed
+	return render_to_response('success.html',{'message':'Sorry, you may only be the coordinator of one shed at at time.'}, context_instance=RequestContext(request))
+
+def remove_toolshed(request):
+	if not request.user.is_authenticated():
+		return HttpResponseRedirect('/sheds/')
+
+	try:
+		shed = Shed.objects.get(coordinator=request.user.get_profile())
+	except Shed.DoesNotExist:
+		return HttpResponseRedirect('/sheds/')
+
+	tools = Tool.objects.all().filter(shed = shed.id)
+	for tool in tools:
+		tool.shed = -1
+		tool.save()
+	shed.delete()
+
+	return render_to_response('success.html',{'message':'The shed has been deleted.'}, context_instance=RequestContext(request))
+
+
+# We wanted to give people the ability to send messages with the
+# recipient field pre-populated, so message() takes care of the 
+# case without a user specified and messageUser() takes care of
+# the case where a user is specified.
+
+def message(request):
+	return messageUser(request, reciever="")
+
+def messageUser(request, reciever=""):
+	if not request.user.is_authenticated():
+		return HttpResponseRedirect('/')
+
+	if request.method=='POST':
+		form = MessageForm(request.POST)
+		if form.is_valid():
+			reciever = form.cleaned_data['reciever']
+			subject = form.cleaned_data['subject']
+			message = form.cleaned_data['message']
+			m = Message(sender=request.user, reciever=reciever, subject=subject, message = message)
+			m.save()
+			return render_to_response('success.html',{"message":"Message sent."}, context_instance=RequestContext(request))
+		else:
+			return render_to_response('message.html', {'form':form}, context_instance=RequestContext(request))
+	else:
+		"""user didn't submit yet"""
+		context = {}
+		try:
+			reciever = User.objects.get(username=reciever)
+			form = MessageForm(initial={'reciever':reciever})
+		except User.DoesNotExist:
+			form = MessageForm()
+		context = {'form':form}
+		return render_to_response('message.html', context, context_instance=RequestContext(request))
+
+def messagecenter(request):
+	if not request.user.is_authenticated():
+		return HttpResponseRedirect('/')
+
+	messages = Message.objects.all().filter(reciever=request.user).order_by('id')
+	context={'messages':messages}
+	return render_to_response('message_center.html', context, context_instance=RequestContext(request))
+
+def message_page(request, messageId=""):
+	if not request.user.is_authenticated():
+		return HttpResponseRedirect('/')
+
+	theMessage = Message.objects.get(id=messageId)
+	context={'message':theMessage.message, 'subject':theMessage.subject, 'sender':theMessage.sender, 'reciever':theMessage.reciever, 'date':theMessage.date}
+	return render_to_response('message_page.html', context, context_instance=RequestContext(request))

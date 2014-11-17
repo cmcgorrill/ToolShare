@@ -1,0 +1,49 @@
+{% block content %}
+
+<form action="" method="post">
+
+	<head> <title>Request A Tool</title> </head>
+
+	{% csrf_token %}
+	{% if form.errors %}<p>Please correct the following fields:</p>
+	<p>{{form.errors}}</p>{% endif %}
+	
+	<head>
+	<title>ToolShare Login</title>
+		<style type="text/css">
+			#header {
+					color:#C6FFC6;
+					background-color:#43B243;
+					padding: 1px;
+			 }
+			#navigation {
+						color:#000080;
+						background-color:#79C179;
+						width:100%;
+						padding:10px;
+						border:5px ;
+						margin:auto
+						}
+			#content {
+					 background-color:#FFFFFF;
+					 width:100%;
+					 padding:10px;
+					 margin:auto;
+					 }
+			#footer {
+					color:#FFFFFF;
+					background-color:#79C179;
+					}
+			body {
+      			 color:#266426;
+      			 background-color:#C6FFC6;
+				 font-family: courier new,courier,monospace;
+    			 }
+    		a  {color:#266426;
+			   	font-family: courier new,courier,monospace;
+				font-size: 16pt;}
+		</style>
+	</head>	
+
+</form>
+{% endblock %}

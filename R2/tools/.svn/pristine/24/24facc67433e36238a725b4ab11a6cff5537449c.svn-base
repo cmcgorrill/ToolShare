@@ -1,0 +1,40 @@
+
+{% block nav %}
+    <li><a href="/">Home</a></li>
+    <li><a href="/users/">Users</a></li>
+    <li><a href="/tools/">Tools</a></li>
+    <li class="active"><a href="/sheds/">Sheds</a></li>
+    <li><a href="/messagecenter/">Messages</a></li>
+{% endblock %}
+
+{% block content %}
+
+<h2>Tool List</h2>
+<a href="/" id="back_home"> Back to Home </a>
+{% if user.is_authenticated %}
+<div id="intro">
+	Tools in {{zipCode}}
+	<p/>
+</div>
+
+<div id="list">
+	{% for tool in tools %}
+	{{tool}}
+	{% endfor %}
+</div>
+
+{% else %}
+<div id="intro">
+	Tools are available in zip codes everywhere!
+	<p/>
+</div>
+
+<div id="list">
+	{% for tool in tools %}
+	{{tool}}
+	{% endfor %}
+</div>
+
+{% endif %}
+
+{% endblock %}

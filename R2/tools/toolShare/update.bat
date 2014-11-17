@@ -1,0 +1,1 @@
+for /D %%d in (postman) do -w 2to3.py %%d

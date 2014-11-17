@@ -1,0 +1,11 @@
+
+#tool_list{
+	font-size:20px;
+	float:left;
+}
+
+#user_list {
+	font-size:20px;
+	float:right;
+	padding-right:30px;
+}

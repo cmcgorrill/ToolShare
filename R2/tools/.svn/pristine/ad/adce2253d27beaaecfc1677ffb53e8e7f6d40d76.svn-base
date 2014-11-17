@@ -1,0 +1,49 @@
+{% extends "mybase.html" %}
+
+{% block title %}Tool List{% endblock %}
+
+{% block pagename %}Tool List{% endblock %}
+
+{% block nav %}
+    <li><a href="/">Home</a></li>
+    <li><a href="/users/">Users</a></li>
+    <li class="active"><a href="/tools/">Tools</a></li>
+    <li><a href="/sheds/">Sheds</a></li>
+    {% if user.is_authenticated %}
+    <li><a href="/messages/">Messages</a></li>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<table width="100%">
+  <tr>
+    <td width="33%">
+    </td>
+    <td width="34%">
+      <div class="well" style="margin-bottom:40px">
+      {% if user.is_authenticated %}
+
+      <h2 style="margin-left:8%;">Tools in {{zipCode}}</h2><br/>
+      {% for tool in tools %}
+      <li style="margin-left:15%;" type="square"><span style="font-size:16pt;"><a href="/tools/{{tool.toolId}}">{{tool}}</a></span></li><br/>
+      {% endfor %}
+      <a id="own" class="btn btn-primary btn-lg" href="/registertool/">Register a tool</a>
+
+      {% else %}
+
+      <h2 style="margin-left:8%;">Tools are available in zip codes everywhere!</h2><br/>
+      {% for tool in tools %}
+      <li style="margin-left:15%;" type="square"><span style="font-size:16pt;"><a href="/tools/{{tool.toolId}}">{{tool}}</a></span></li><br/>
+      {% endfor %}
+
+      <div style="padding-top:30px"><span style="font-size:14pt;">Want to join in on the fun? Click <a href="/register/">here</a> to register!</span></div>
+
+
+      {% endif %}
+      </div>
+    </td>
+    <td width="33%">
+    </td>
+  </tr>
+</table>
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends "mybase.html" %}
+
+{% block title %}Register Tool{% endblock %}
+
+{% block pagename %}Register Tool{% endblock %}
+
+{% block nav %}
+    <li><a href="/">Home</a></li>
+    <li><a href="/users/">Users</a></li>
+    <li  class="active"><a href="/tools/">Tools</a></li>
+    <li><a href="/sheds/">Sheds</a></li>
+    {% if user.is_authenticated %}
+    <li><a href="/messages/">Messages</a></li>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+
+<form action="" method="post">
+	
+	<div id="content" align="center">
+		{% csrf_token %}
+	{% if form.errors %}<p>Please correct the following fields:</p>{% endif %}
+	
+	<div class="register_div">
+		{% if form.toolType.errors %}<p class="error">{{ form.toolType.errors }}</p>{% endif %}
+		<p><label for="toolType"{% if form.toolType.errors %} class="error"{% endif %}>Tool Type: {{ form.toolType }}</label></p>
+		
+	</div>
+
+	<div class="register_div" style="height:60pt;width:250pt">
+		{% if form.description.errors %}<p class="error">{{ form.description.errors }}</p>{% endif %}
+		<p><label for="description"{% if form.description.errors %} class="error"{% endif %}>Description: {{ form.description }}</label></p>
+		
+	</div>
+
+	<div style="padding-top:30px">
+	<button class="btn btn-primary btn-lg" type="submit" alt="register">Register Tool</button>
+	</div>
+
+	</div>
+	
+</form>
+
+{% endblock %}
+	
+
+</head>
+
+
+<html>

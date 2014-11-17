@@ -1,0 +1,149 @@
+
+{% extends "mybase.html" %}
+
+{% block title %}{{toolType}}{% endblock %}
+
+{% block pagename %}{{toolType}}{% endblock %}
+
+{% block nav %}
+    <li><a href="/">Home</a></li>
+    <li class="active"><a href="/users/">Users</a></li>
+    <li><a href="/tools/">Tools</a></li>
+    <li><a href="/sheds/">Sheds</a></li>
+    {% if user.is_authenticated %}
+    <li><a href="/messages/">Messages</a></li>
+    {% endif %}
+{% endblock %}
+
+{% block content %}	
+
+<style>
+#right{
+	float: right;
+}
+#left{
+	float: left;
+}
+#profileTable{
+	width:100%;
+	height:100%;
+}
+#about{
+	margin-left:10%;
+}
+#own{
+	margin-left: 15%;
+}
+#borrow{
+	margin-left: 10%;
+}
+#requests{
+	height: 95%;
+	min-height: 100%
+}
+#ownedCol{
+	width:17%;
+	min-height: 100%;
+}
+#borrowedCol{
+	width:19%;
+	min-height: 100%
+}
+#lendingCol{
+	width:28%;
+	min-height: 100%
+}
+#welcome{
+	width:92%;
+	padding: 1%;
+	top:0;
+}
+#info{
+	top:0;
+}
+#owned{
+	width:79%;
+	min-height: 100%
+}
+#borrowed{
+	width:81%;
+	min-height: 100%
+} 
+#owned, #borrowed, #lending, #welcome, #info, #requests{
+	background-color:#E6E6E6;
+}
+#aboutText{
+	font-size: 15pt;
+}
+</style>
+
+<table id="profileTable">
+	<tr height="10%">
+		
+		<td colspan="3">
+			<div id="welcome" class="well" width="90%">
+				{% if user.get_profile == toolUser %}
+					<h2>Your {{toolType}}</h2>
+				{% else %}
+					<h2>{{toolUser}}'s {{toolType}}</h2>
+				{% endif %}
+			</div>	
+		</td>
+		<td rowspan="3" width="25%">
+			<div id="info" class="well">
+				{% if isAvailable %}
+					<h3>Available</h3>
+					<p>This {{toolType}} is available to borrow.</p>
+					{% if user.get_profile != toolUser %}
+						<p><a class="btn" href="/request/{{id}}">Request Borrow</a></p>
+					{% else %}
+						<p><a class="btn btn-lg" href="/choose_shed/{{tool.toolId}}">Add to a Shed</a></p>
+					{% endif %}
+				{% else %}
+					<h3>Unavailable</h3>
+					This {{toolType}} is on loan.
+				{% endif %}
+				<h3>Descrption</h3>
+				<p>{{description}}</p>
+				{% if user.get_profile == toolUser %}
+					<a class="btn btn-lg" href="/deregistertool/{{tool.toolId}}">Delete Tool</a>
+				{% endif %}
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td rowspan="2" id="ownedCol">
+			<div id="owned" class="well">
+				
+				<h3>Owned By</h3>
+				{{toolUser}}
+				<h3>Home Location</h3>
+				{% if inshed %}
+					This {{toolType}} belongs to the shed, {{shed}}.
+					{% if user.get_profile == toolUser%}
+						<p style="padding-top:20px;"><a class="btn btn-lg" href="/remove_tool_from_shed/{{tool.toolId}}">Remove from {{shed.name}}</a></p>
+					{% endif %}
+				{% else %}
+					This {{toolType}} is being loaned from {{toolUser}}'s home: {{location}}
+				{% endif %}
+			</div>
+		</td>
+		<td rowspan="2" id="borrowedCol">
+			<div id="borrowed" class="well">
+				<h3>Borrowed By</h3>
+					{% if isAvailable %}
+						This {{toolType}} is not currently being borrowed.
+					{% else %}
+						{{currentUser}} is borrowing this {{toolType}}.
+					{% endif %}
+				{% if user.get_profile == toolUser%}
+					<p><a class="btn btn-lg" href="/returned/{{id}}">This Tool Has Been Returned</a></p>
+				{% endif %}
+			</div>
+		</td>
+	</tr>
+	<tr>
+	</tr>
+</table>	
+
+{% endblock %}

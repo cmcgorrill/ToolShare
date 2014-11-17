@@ -1,0 +1,53 @@
+{% extends "mybase.html" %}
+
+{% block pagename %}Shed List{% endblock %}
+
+{% block nav %}
+    <li><a href="/">Home</a></li>
+    <li><a href="/users/">Users</a></li>
+    <li><a href="/tools/">Tools</a></li>
+    <li class="active"><a href="/sheds/">Sheds</a></li>
+    {% if user.is_authenticated %}
+    <li><a href="/messages/">Messages</a></li>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<table width="100%">
+  <tr>
+    <td width="33%">
+    </td>
+    <td width="34%">
+      <div class="well">
+      {% if user.is_authenticated %}
+      	{% if sheds %}
+          <h2 style="margin-left:8%;">TESTSheds in ShareZone {{user.get_profile.zipCode}}</h2><br/>
+      		{% for shed in sheds %}
+		      	<li style="margin-left:15%;" type="square"><span style="font-size:16pt;"><a href="/sheds/{{shed.id}}">{{shed.name}}</a></span></li><br/>
+		      {% endfor %}
+          <a id="own" class="btn btn-lg" href="/create_toolshed/">Create a Shed</a>
+          TEST
+		    {% else %}
+          <h2 style="margin-left:8%;">Oh no!</h2><br/>
+          <p style="margin-left:5%;"><span style="font-size:16pt;">It seems there aren't any sheds in your ShareZone. Why not <a href="/create_toolshed/">create one</a>?</span></p><br/>
+        {% endif %}
+
+	{% else %}
+    {% if sheds %}
+      <h2 style="margin-left:8%;">Sheds Have Been Created Everywhere!</h2><br/>
+      {% for shed in sheds %}
+        <li style="margin-left:15%;" type="square"><span style="font-size:16pt;"><a href="/sheds/{{shed.id}}">{{shed.name}}</a></span></li><br/>
+      {% endfor %}
+    {% else %}
+      <h2 style="margin-left:8%;">Oh no!</h2><br/>
+      <p style="margin-left:5%;"><span style="font-size:16pt;">It seems there aren't any sheds in your ShareZone. Why not <a href="/register/">join ToolShare</a> and create one?</span></p><br/>
+    {% endif %}
+  {% endif %}
+  
+      </div>
+    </td>
+    <td width="33%">
+    </td>
+  </tr>
+
+{% endblock %}

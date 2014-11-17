@@ -1,0 +1,19 @@
+{% extends "postman/base_folder.html" %}
+<form action="" method="post">
+
+	{% block title %}Requests{% endblock %}
+
+	{% block pagename %}Requests{% endblock %}
+
+
+	{% block content %}
+		{% if requestList %}
+			{% for request in requestList %}
+	            {% if request.tool in ownedTools %}
+		            <li>{{request.requester}} would like to borrow your <a href="/tools/{{request.tool.toolId}}">{{request.tool}}</a>  (<a href="/accept_request/{{request.requestId}}" class="btn btn-primary btn-lg">Accept</a>, <a href="/deny_request/{{request.requestId}}" class="btn btn-primary btn-lg">Decline</a>)</li>
+		        {% endif %}
+	        {% endfor %}
+        {% else %}
+	        <p>You currently don't have any requests to borrow your tools.</p>
+	    {% endif %}
+	{% endblock %}

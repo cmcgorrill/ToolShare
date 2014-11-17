@@ -1,0 +1,66 @@
+{% extends "mybase.html" %}
+<form action="" method="post">
+
+	{% block title %}Home{% endblock %}
+
+	{% block pagename %}Home{% endblock %}
+
+
+	{% block content %}
+<center>{{message}}</center>
+      <div class="container" style:"padding: 10px">
+    {% if user.is_authenticated %}
+    <p>Welcome back, <a href="/users/{{user}}">{{user}}</a>!</p>
+      {% if updates %}
+        {% for update in updates %}
+          <p>
+          <div style="font-size:20px;"><u>{{update.subject}}</u></div>
+          <div style="font-size:10px;">{{update.published}}</div>
+          {{update.message}}<br/>
+          </p>
+        {% endfor %}
+
+      {% else %}
+      There are no new updates.
+
+      {% endif %}
+
+    {% else %}  
+      <!-- Main hero unit for a primary marketing message or call to action -->
+      <div class="well">
+        <h1>Welcome to ToolShare</h1>
+        <p>ToolShare is an online tool exchange where members of your community can connect and share their resources and knowledge!</p>
+        <p>Need to use a new tool for project, but don't have one and don't know how to use it?</p>
+        <p>Lawn mower die on you, and can't find the time to get a new one?</p>
+        <p>Working on a one time project, and don't want to spend the money on expensive tools you won't use again?</p>
+        <p>  </p>
+        <p>Get started with ToolShare today!</p>
+        <p><a href="/register/" class="btn btn-lg">Register</a></p>
+        <p>  </p>
+        <p>Already a member?</p>
+        <p><a href="/login/" class="btn btn-lg">Login</a></p>
+      </div>
+
+      <!-- Example row of columns -->
+      <div class="row">
+        <div class="span4">
+          <h2>Connect</h2>
+          <p>Reach out to your community and reap the benefits! When you join ToolShare, you are instantly connected to the resources of every ToolShare user in your area. No longer are you limited to the tools of your next-door neighbor: now you've got the whole town!</p>
+          <p><a class="btn" href="/users/">Users</a></p>
+        </div>
+        <div class="span4">
+          <h2>Borrow</h2>
+          <p>Browse the online ToolShed directories to see what's available in your area. When you find something you like, simply follow the link to the info page of that tool and send a request to borrow it to the owner!</p>
+          <p><a class="btn" href="/tools/">Tools</a></p>
+       </div>
+        <div class="span4">
+          <h2>Share</h2>
+          <p>Give your old tools some use, and help benefit your community! On your user profile, or on the Tools page, follow the link to register some of your own tools on ToolShare. Once they are registered, don't forget to put them in ToolShed directories so other users can find them easily!</p>
+          <p><a class="btn" href="/sheds/">Sheds</a></p>
+        </div>
+      </div>
+      {% endif %}
+{% endblock %}
+      <hr>
+
+</form>

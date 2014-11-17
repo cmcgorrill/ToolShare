@@ -1,0 +1,49 @@
+{% extends "mybase.html" %}
+
+{% block title %}User List{% endblock %}
+
+{% block pagename %}User List{% endblock %}
+
+{% block nav %}
+    <li><a href="/">Home</a></li>
+    <li class="active"><a href="/users/">Users</a></li>
+    <li><a href="/tools/">Tools</a></li>
+    <li><a href="/sheds/">Sheds</a></li>
+    {% if user.is_authenticated %}
+    <li><a href="/messages/">Messages</a></li>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<table width="100%">
+	<tr>
+		<td width="33%">
+		</td>
+		<td width="34%">
+			<div class="well">
+			{% if user.is_authenticated %}
+
+			<h2 style="margin-left:8%;">Users with zip code {{zipCode}}</h2><br/>
+			{% for u in users %}
+			<li style="margin-left:15%;" type="square"><a href="/users/{{u.user}}"><span style="font-size:16pt;">{{u.user}}</span></a></li><br/>
+			{% endfor %}
+
+
+			{% else %}
+
+			<h2 style="margin-left:8%;">People are using ToolShare everywhere!</h2><br/>
+			{% for u in users %}
+			<li style="margin-left:15%;" type="square"><a href="/users/{{u.user}}"><span style="font-size:16pt;">{{u.user}}</span></a></li><br/>
+			{% endfor %}
+
+			<div style="padding-top:30px"><span style="font-size:14pt;">Want to join in on the fun? Click <a href="/register/">here</a> to register!</span></div>
+
+
+			{% endif %}
+			</div>
+		</td>
+		<td width="33%">
+		</td>
+	</tr>
+
+{% endblock %}

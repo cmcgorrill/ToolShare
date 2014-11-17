@@ -1,0 +1,20 @@
+{% extends "mybase.html" %}
+
+{% block extrahead %}
+{% endblock %}
+
+{% block nav %}
+    <li><a href="/">Home</a></li>
+    <li><a href="/users/">Users</a></li>
+    <li><a href="/tools/">Tools</a></li>
+    <li><a href="/sheds/">Sheds</a></li>
+    {% if user.is_authenticated %}
+    <li class="active"><a href="/messages/">Messages</a></li>
+    {% endif %}
+{% endblock %}
+
+{% block message_center_requests %}
+    <div class="well">
+		<span style="font-size:28px;"><a href="/requests/">Requests</a></span>
+	</div>        
+{% endblock %}

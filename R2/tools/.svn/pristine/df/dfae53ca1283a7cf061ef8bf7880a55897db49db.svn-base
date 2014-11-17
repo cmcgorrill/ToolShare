@@ -1,0 +1,35 @@
+{% extends "mybase.html" %}
+
+{% block pagename %}{{shed.name}}{% endblock %}
+
+{% block nav %}
+    <li><a href="/">Home</a></li>
+    <li><a href="/users/">Users</a></li>
+    <li><a href="/tools/">Tools</a></li>
+    <li class="active"><a href="/sheds/">Sheds</a></li>
+    <li><a href="/messagecenter/">Messages</a></li>
+{% endblock %}
+
+{% block content %}
+
+<p>Shed Coordinator: <a href="/users/{{shed.coordinator.user.username}}/">{{shed.coordinator}}</a></p>
+<p style="padding-top=10px;padding-bottom:20px; padding-left:20px;">{{shed.description}}</p>
+
+{% if tools %}
+	<p>Tools in Shed:</p>
+	{% for tool in tools %}
+	<p style="padding-left:10px;"><a href="/tools/{{tool.toolId}}">{{tool}}</a>{% ifequal shed.coordinator user.get_profile %} (<a href="/remove_tool_from_shed/{{tool.toolId}}">Remove</a>) {% endifequal %}</p>
+
+	{% endfor %}
+
+{% else %}
+	There are no tools in the shed.<br/>
+
+{% endif %}
+
+{% if user.get_profile == shed.coordinator %}
+<p><a href="/remove_toolshed/">Delete your shed</a></p>
+{% endif %}
+
+
+{% endblock %}
